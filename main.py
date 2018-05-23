@@ -29,34 +29,33 @@ def k_means_cs171(x_input,           #this is a datapoint x feature) matrix. Eac
     old_assignment = np.zeros(150)
     new_assignment = np.arange(150)
     while(not(np.array_equal(old_assignment, new_assignment))):     #repeat while clustering changes
-        old_assignment = new_assignment
+        old_assignment = np.array(new_assignment, copy= True)
         for i in range(np.size(x_input,0)):
             closes_centroid = 99999.9
             for j in range(k):             #assign each point to the nearest centroid
                 dis = distance(x_input[i], init_centroids[j],2)
                 #print("i: "+str(i)+" j: "+str(j)+" dist:"+ str(dis))
-                #raw_input()
                 if(dis < closes_centroid):
                     closes_centroid = dis
                     new_assignment[i] = j
 
-
-        print(new_assignment)
         #compute new cluster centroids as mean of all points in cluster
         temp_centroid = np.zeros((k,4))
         temp_count = np.zeros(k)
-        print(temp_centroid)
         for x in range(np.size(x_input,0)):
             for y in range(k):
                 if(new_assignment[x]==y):       #clusters
                     temp_centroid[y] = temp_centroid[y] + x_input[x]
                     temp_count[y] += 1
-        print(temp_count)
         for n in range(k):
             init_centroids[n] = np.true_divide(temp_centroid[n],temp_count[n])
-
+        print("New centroids ")
         print(init_centroids)
-        raw_input
+        print("new_Assignments")
+        print(new_assignment)
+        print("old_assignment")
+        print(old_assignment)
+        raw_input()
 
     return new_assignment, init_centroids    #left is vector with data point and cluster Assignment. right final centroids
 
@@ -67,9 +66,9 @@ if __name__ == "__main__":
     k = 3
     centroids = np.array([])
     for i in range(1,k+1):
-        rand_cent = i*np.random.randint(150.0/k)
-        print("cent: "+str(rand_cent))
+        rand_cent = np.random.randint(150.0)
         centroids = np.append(centroids,iris_data[rand_cent],axis = 0)
     centroids = centroids.reshape(3,4)
-    #print(centroids)
+    print("Initial centroid")
+    print(centroids)
     cluster_assignments, cluster_centroids = k_means_cs171(x_input=iris_data,k=3,init_centroids=centroids)
