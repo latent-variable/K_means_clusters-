@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 #****************************************
 #Gettting real data [0%]
@@ -14,7 +14,7 @@ def Get_Data():
     return data,data_name
 
 #****************************************
-#K-means Clustering[0%]
+#K-means Clustering[50%]
 #****************************************
 def distance(x,y,p):                #Lp distance using L2 distance for this Assignment
     dist= 0;
@@ -51,24 +51,53 @@ def k_means_cs171(x_input,           #this is a datapoint x feature) matrix. Eac
             init_centroids[n] = np.true_divide(temp_centroid[n],temp_count[n])
         print("New centroids ")
         print(init_centroids)
-        print("new_Assignments")
-        print(new_assignment)
-        print("old_assignment")
-        print(old_assignment)
-        raw_input()
+        # print("new_Assignments")
+        # print(new_assignment)
+        # print("old_assignment")
+        # print(old_assignment)
+        #raw_input()
 
     return new_assignment, init_centroids    #left is vector with data point and cluster Assignment. right final centroids
+#****************************************
+#Evalutation[50%]
+#****************************************
+def sum_of_square_of_errors(cluster_centroids, cluster_assignments, data ):
+    total_error = 0.0
+    for i in range(np.size(cluster_assignments)):
+        for j in range(np.size(cluster_centroids,0)):
+            if(cluster_assignments[i] == j):
+                total_error += distance(data[i],cluster_centroids[j],2)
+    return total_error
+
+
+def Knee_Plot(iris_data):
+    cluster_assignments = [None]*10
+    cluster_centroids = [None]*10
+    errors = [None]*10
+    #need to iterate through k from 1-10
+    for k in range(1,11):
+        print("Using K: "+str(k))
+        centroids = np.array([])
+        for i in range(1,k+1):
+            rand_cent = np.random.randint(150.0)
+            centroids = np.append(centroids,iris_data[rand_cent],axis = 0)
+        centroids = centroids.reshape(k,4)
+        print("Initial centroid")
+        print(centroids)
+        cluster_assignments[k-1], cluster_centroids[k-1] = k_means_cs171(x_input=iris_data,k=k,init_centroids=centroids)
+        errors[k-1] = sum_of_square_of_errors(cluster_centroids[k-1],cluster_assignments[k-1],iris_data)
+    Knee_plot = plt.figure(1)
+    x = np.arange(1, 11)
+    y = errors
+    Knee_plot = plt.errorbar(x, y, xerr = 0, yerr=0, color = 'cornflowerblue', ecolor='crimson',capsize=1, capthick=1  )
+    plt.xlabel("K = number of clusters")
+    plt.ylabel("sum_of_square_of_errors")
+    plt.title("Knee plot")
+
+    plt.show()
+    raw_input()
+
 
 if __name__ == "__main__":
     iris_data, iris_name = Get_Data()
-
-    #need to iterate through k from 1-10
-    k = 3
-    centroids = np.array([])
-    for i in range(1,k+1):
-        rand_cent = np.random.randint(150.0)
-        centroids = np.append(centroids,iris_data[rand_cent],axis = 0)
-    centroids = centroids.reshape(3,4)
-    print("Initial centroid")
-    print(centroids)
-    cluster_assignments, cluster_centroids = k_means_cs171(x_input=iris_data,k=3,init_centroids=centroids)
+    Knee_Plot(iris_data)
