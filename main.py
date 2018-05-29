@@ -49,13 +49,13 @@ def k_means_cs171(x_input,           #this is a datapoint x feature) matrix. Eac
                     temp_count[y] += 1
         for n in range(k):
             init_centroids[n] = np.true_divide(temp_centroid[n],temp_count[n])
-        print("New centroids ")
-        print(init_centroids)
+        # print("New centroids ")
+        # print(init_centroids)
         # print("new_Assignments")
         # print(new_assignment)
         # print("old_assignment")
         # print(old_assignment)
-        #raw_input()
+        # raw_input()
 
     return new_assignment, init_centroids    #left is vector with data point and cluster Assignment. right final centroids
 #****************************************
@@ -78,18 +78,33 @@ def Knee_Plot(iris_data):
     for k in range(1,11):
         print("Using K: "+str(k))
         centroids = np.array([])
+        #generate a non-repetitive random number for the centrods
+        rand_cent = np.arange(150)
+        np.random.shuffle(rand_cent)
         for i in range(1,k+1):
-            rand_cent = np.random.randint(150.0)
-            centroids = np.append(centroids,iris_data[rand_cent],axis = 0)
+            centroids = np.append(centroids,iris_data[rand_cent[i]],axis = 0)
         centroids = centroids.reshape(k,4)
         print("Initial centroid")
         print(centroids)
         cluster_assignments[k-1], cluster_centroids[k-1] = k_means_cs171(x_input=iris_data,k=k,init_centroids=centroids)
         errors[k-1] = sum_of_square_of_errors(cluster_centroids[k-1],cluster_assignments[k-1],iris_data)
+    return errors
+
+def Sensitivity_analysis(iris_data, max_inter):
+    errors =[None]*max_inter
+    for n in range(max_inter):
+        errors[n] = Knee_Plot(iris_data)
+
     Knee_plot = plt.figure(1)
     x = np.arange(1, 11)
-    y = errors
-    Knee_plot = plt.errorbar(x, y, xerr = 0, yerr=0, color = 'cornflowerblue', ecolor='crimson',capsize=1, capthick=1  )
+    if(max_inter == 1):
+        y = errors[0]
+        yerr = 0
+    else:
+        y = np.mean(errors, axis = 0)
+        yerr = np.std(errors, axis = 0)
+
+    Knee_plot = plt.errorbar(x, y, xerr = 0, yerr = yerr, color = 'cornflowerblue', ecolor='crimson',capsize=2, capthick=1  )
     plt.xlabel("K = number of clusters")
     plt.ylabel("sum_of_square_of_errors")
     plt.title("Knee plot")
@@ -97,7 +112,6 @@ def Knee_Plot(iris_data):
     plt.show()
     raw_input()
 
-
 if __name__ == "__main__":
     iris_data, iris_name = Get_Data()
-    Knee_Plot(iris_data)
+    Sensitivity_analysis(iris_data,100)
